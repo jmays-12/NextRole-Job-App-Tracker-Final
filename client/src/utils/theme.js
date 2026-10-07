@@ -16,9 +16,8 @@ theme.helpPopup = `text-center absolute right-0 top-9 z-50 w-80 rounded border b
 theme.helpPopupTitle = `text-base`
 theme.helpClose = `absolute top-0.5 right-2 text-gray-500 hover:text-gray-800 cursor-pointer text-sm`
 
-theme.buttonHover = `hover:bg-gray-200`
 
-theme.button = `${theme.buttonHover} border rounded-lg px-2 py-0.5 m-1 `
+theme.button = `border rounded-lg px-2 py-0.5 m-1 hover:bg-gray-200`
 theme.buttonDanger = `${theme.button} text-red-600 hover:bg-red-100`
 theme.logoutButton = `${theme.button}`
 theme.editButtons = `ml-auto flex gap-3`
@@ -33,6 +32,8 @@ theme.chipOn = {
     rejected: `${theme.chipBase} bg-red-100 text-red-800 border-red-300`,
     withdrawn: `${theme.chipBase} bg-gray-200 text-gray-700 border-gray-400`,
 }
+theme.chipOnAll = `${theme.chipBase} bg-gray-800 text-white border-gray-800`
+theme.filterRow = `flex flex-wrap gap-2 mb-3`
 
 
 theme.companyName = `capitalize underline text-xl m-1`

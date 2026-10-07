@@ -46,6 +46,8 @@ export default function Dashboard({ user, onLogout }) {
 
     const [showHelp, setShowHelp] = useState(false);
 
+    const [statusFilter, setStatusFilter] = useState("all");
+
     useEffect(() => {
         api.getApps().then(setApps).catch((err) => setError(err.message));
     }, []);
@@ -162,6 +164,10 @@ export default function Dashboard({ user, onLogout }) {
         }
     };
 
+    const visibleApps = apps.filter(
+        (a) => statusFilter === "all" || a.status === statusFilter
+    );
+
     return (
         <div className={theme.page}>
             <div className={theme.container}>
@@ -223,8 +229,30 @@ export default function Dashboard({ user, onLogout }) {
                     <button className={theme.button} type="submit">Add application</button>
                 </form>
 
+                {apps.length > 0 && (
+                    <div className={theme.filterRow}>
+                        {["all", ...STATUSES].map((s) => (
+                            <button
+                                key={s}
+                                type="button"
+                                className={
+                                    statusFilter === s
+                                        ? s === "all" ? theme.chipOnAll : theme.chipOn[s]
+                                        : theme.chipOff
+                                }
+                                onClick={() => setStatusFilter(s)}
+                            >
+                                {s}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
                 {apps.length === 0 && <p className={theme.info}>No applications yet. Fill out the form above to add your first application to track!</p>}
-                {apps.map((app) =>
+                {apps.length > 0 && visibleApps.length === 0 && (
+                    <p className={theme.info}>No applications match your filters.</p>
+                )}
+                {visibleApps.map((app) =>
                     editingId === app.id ? (
                         <div className={theme.card} key={app.id}>
                             {editError && <p className={theme.error}>{editError}</p>}
