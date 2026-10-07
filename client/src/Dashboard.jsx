@@ -36,6 +36,7 @@ export default function Dashboard({ user, onLogout }) {
 
     const [editingId, setEditingId] = useState(null);
     const [draft, setDraft] = useState({});
+    const [editError, setEditError] = useState("");
 
     const [link, setLink] = useState("");
     const [dateApplied, setDateApplied] = useState(today());
@@ -91,7 +92,22 @@ export default function Dashboard({ user, onLogout }) {
         onLogout();
     };
 
+    const hasUnsavedChanges = () => {
+        const original = apps.find((a) => a.id === editingId);
+        if (!original) return false;
+        return Object.keys(draft).some((key) => draft[key] !== original[key]);
+    };
+
+    const cancelEdit = () => {
+        setEditingId(null);
+        setEditError("");
+    };
+
     const startEdit = (app) => {
+        if (editingId !== null && editingId !== app.id && hasUnsavedChanges()) {
+            if (!window.confirm("Discard unsaved changes to the other application?")) return;
+        }
+        setEditError("");
         setEditingId(app.id);
         setDraft({
             company: app.company,
@@ -103,15 +119,19 @@ export default function Dashboard({ user, onLogout }) {
     };
 
     const saveEdit = async (id) => {
+        if (!draft.company.trim() || !draft.role.trim()) {
+            setEditError("Company and role are required.");
+            return;
+        }
         try {
-            setError("");
-            const updated = await api.updateApp(id, draft);
-            setApps((currentApps) =>
-                currentApps.map((a) => (a.id === id ? updated : a))
-            );
-            setEditingId(null);
+            setEditError("");
+            const updated = await api.updateApp(id, {
+                ...draft,
+                company: draft.company.trim(),
+                role: draft.role.trim(),
+            });
         } catch (err) {
-            setError(err.message);
+            setEditError(err.message);
         }
     };
 
@@ -180,6 +200,7 @@ export default function Dashboard({ user, onLogout }) {
                 {apps.map((app) =>
                     editingId === app.id ? (
                         <div className={theme.card} key={app.id}>
+                            {editError && <p className={theme.error}>{editError}</p>}
                             <input className={theme.input} value={draft.company} onChange={(e) => setDraft({ ...draft, company: e.target.value })} />
                             <input className={theme.input} value={draft.role} onChange={(e) => setDraft({ ...draft, role: e.target.value })} />
                             <input className={theme.input} placeholder="Link" value={draft.link} onChange={(e) => setDraft({ ...draft, link: e.target.value })} />
@@ -187,7 +208,7 @@ export default function Dashboard({ user, onLogout }) {
                             <textarea className={theme.input} placeholder="Notes" value={draft.notes} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} />
                             <div className={theme.row}>
                                 <button type="button" className={theme.button} onClick={() => saveEdit(app.id)}>Save</button>
-                                <button type="button" className={theme.button} onClick={() => setEditingId(null)}>Cancel</button>
+                                <button type="button" className={theme.button} onClick={cancelEdit}>Cancel</button>
                             </div>
                         </div>
                     ) : (
