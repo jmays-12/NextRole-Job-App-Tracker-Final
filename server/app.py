@@ -11,6 +11,10 @@ from models import Application, User, db
 
 load_dotenv()
 
+# variables for validate_application
+MAX_FIELD_LENGTH = 200
+MAX_NOTES_LENGTH = 2000
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///nextrole.db"
@@ -46,6 +50,29 @@ def login_required(f):
 def get_owned_application(app_id):
     """Returns the application only if it belongs to the logged-in user."""
     return Application.query.filter_by(id=app_id, user_id=session["user_id"]).first()
+
+
+def is_valid_date(value):
+    try:
+        datetime.strptime(value, "%Y-%m-%d").date()
+        return True
+    except (ValueError, TypeError):
+        return False
+
+
+def validate_application(company, role, link, notes, date_applied):
+    """Returns an error message, or None if everything is fine."""
+    if not company or not role:
+        return "Company and role required"
+    if len(company) > MAX_FIELD_LENGTH or len(role) > MAX_FIELD_LENGTH:
+        return "Company and role must be 200 characters or fewer"
+    if len(link) > 500:
+        return "Link must be 500 characters or fewer"
+    if len(notes) > MAX_NOTES_LENGTH:
+        return "Notes must be 2000 characters or fewer"
+    if not is_valid_date(date_applied):
+        return "Date must be in YYYY-MM-DD format"
+    return None
 
 
 @app.post("/api/signup")
@@ -114,17 +141,24 @@ def get_applications():
 @login_required
 def create_application():
     data = request.get_json(silent=True) or {}
-    company, role = data.get("company"), data.get("role")
-    if not company or not role:
-        return jsonify({"error": "Company and role required"}), 400
+
+    company = str(data.get("company") or "").strip()
+    role = str(data.get("role") or "").strip()
+    link = str(data.get("link") or "").strip()
+    date_applied = (
+        data.get("date_applied") or datetime.now(timezone.utc).date().isoformat()
+    )
+
+    error = validate_application(company, role, link, "", date_applied)
+    if error:
+        return jsonify({"error": error}), 400
 
     application = Application(
         user_id=session["user_id"],
         company=company,
         role=role,
-        link=data.get("link", ""),
-        date_applied=data.get("date_applied")
-        or datetime.now(timezone.utc).date().isoformat(),
+        link=link,
+        date_applied=date_applied,
     )
     db.session.add(application)
     db.session.commit()
@@ -139,21 +173,25 @@ def update_application(app_id):
         return jsonify({"error": "Not found"}), 404
 
     data = request.get_json(silent=True) or {}
-    company = data.get("company", application.company)
-    role = data.get("role", application.role)
+    company = str(data.get("company", application.company)).strip()
+    role = str(data.get("role", application.role)).strip()
+    link = str(data.get("link", application.link)).strip()
+    notes = str(data.get("notes", application.notes))
+    date_applied = data.get("date_applied", application.date_applied)
     status = data.get("status", application.status)
 
-    if not company or not role:
-        return jsonify({"error": "Company and role required"}), 400
+    error = validate_application(company, role, link, notes, date_applied)
+    if error:
+        return jsonify({"error": error}), 400
     if status not in VALID_STATUSES:
         return jsonify({"error": "Invalid status"}), 400
 
     application.company = company
     application.role = role
     application.status = status
-    application.link = data.get("link", application.link)
-    application.date_applied = data.get("date_applied", application.date_applied)
-    application.notes = data.get("notes", application.notes)
+    application.link = link
+    application.date_applied = date_applied
+    application.notes = notes
     db.session.commit()
     return jsonify(application.to_dict())
 
