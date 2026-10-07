@@ -49,13 +49,13 @@ export default function Dashboard({ user, onLogout }) {
     const handleAdd = async (e) => {
         e.preventDefault();
         try {
+            setError("");
             const created = await api.createApp({ company, role, link, date_applied: dateApplied });
             setApps((currentApps) => [created, ...currentApps]);
             setCompany("");
             setRole("");
             setLink("");
             setDateApplied(today());
-            setError("");
         } catch (err) {
             setError(err.message);
         }
@@ -63,6 +63,7 @@ export default function Dashboard({ user, onLogout }) {
 
     const handleStatus = async (id, status) => {
         try {
+            setError("");
             const updated = await api.updateStatus(id, status);
             setApps((currentApps) =>
                 currentApps.map((a) => (a.id === id ? updated : a))
@@ -75,6 +76,7 @@ export default function Dashboard({ user, onLogout }) {
     const handleDelete = async (id) => {
         if (!window.confirm("Delete this application?")) return;
         try {
+            setError("");
             await api.deleteApp(id);
             setApps((currentApps) =>
                 currentApps.filter((a) => a.id !== id)
@@ -102,6 +104,7 @@ export default function Dashboard({ user, onLogout }) {
 
     const saveEdit = async (id) => {
         try {
+            setError("");
             const updated = await api.updateApp(id, draft);
             setApps((currentApps) =>
                 currentApps.map((a) => (a.id === id ? updated : a))
