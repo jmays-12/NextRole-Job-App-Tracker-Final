@@ -51,3 +51,4 @@ theme.error = `text-red-600 mb-2`
 theme.row = `flex gap-2 items-center`
 theme.link = `underline cursor-pointer hover:text-gray-500`
 theme.info = `text-center mt-10 text-gray-500`
+theme.loading = `text-gray-500`

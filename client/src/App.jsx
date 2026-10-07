@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+
 import { api } from "./utils/api";
+import { theme } from "./utils/theme"
 import Auth from "./Auth";
 import Dashboard from "./Dashboard";
 
@@ -15,7 +17,13 @@ export default function App() {
             .finally(() => setLoading(false));
     }, []);
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) {
+        return (
+            <div className={theme.page}>
+                <p className={theme.loading}>Loading...</p>
+            </div>
+        );
+    }
 
     return user ? (
         <Dashboard user={user} onLogout={() => setUser(null)} />
