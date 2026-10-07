@@ -1,10 +1,9 @@
 import { useEffect, useState, useRef } from "react";
-import { api } from "./utils/api";
-import { theme } from "./utils/theme";
+import { api } from "../utils/api";
+import { theme } from "../utils/theme";
 
 const STATUSES = ["applied", "interviewing", "offer", "rejected", "withdrawn"];
 
-const helpRef = useRef(null);
 
 // Today's date as YYYY-MM-DD (the date picker and database need this format)
 const today = () => {
@@ -29,6 +28,8 @@ const normalizeUrl = (url) => {
 };
 
 export default function Dashboard({ user, onLogout }) {
+
+    const helpRef = useRef(null);
 
     const [apps, setApps] = useState([]);
     const [company, setCompany] = useState("");

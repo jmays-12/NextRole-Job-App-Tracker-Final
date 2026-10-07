@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 
 import { api } from "./utils/api";
 import { theme } from "./utils/theme"
-import Auth from "./Auth";
-import Dashboard from "./Dashboard";
+import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
 
 export default function App() {
     const [user, setUser] = useState(null);
