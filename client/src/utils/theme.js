@@ -43,7 +43,7 @@ theme.appLink = `underline text-blue-500 text-sm block m-1`
 theme.date = `text-sm text-gray-600 m-1`
 
 
-theme.input = `border rounded p-1 w-full mb-2`
+theme.input = `border rounded px-2 py-1 w-full mb-2`
 
 
 theme.switchText = `mt-3`

@@ -130,6 +130,10 @@ export default function Dashboard({ user, onLogout }) {
                 company: draft.company.trim(),
                 role: draft.role.trim(),
             });
+            setApps((currentApps) =>
+                currentApps.map((a) => (a.id === id ? updated : a))
+            );
+            setEditingId(null);
         } catch (err) {
             setEditError(err.message);
         }
