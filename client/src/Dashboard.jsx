@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { api } from "./utils/api";
 import { theme } from "./utils/theme";
 
 const STATUSES = ["applied", "interviewing", "offer", "rejected", "withdrawn"];
+
+const helpRef = useRef(null);
 
 // Today's date as YYYY-MM-DD (the date picker and database need this format)
 const today = () => {
@@ -46,6 +48,26 @@ export default function Dashboard({ user, onLogout }) {
     useEffect(() => {
         api.getApps().then(setApps).catch((err) => setError(err.message));
     }, []);
+
+    useEffect(() => {
+        if (!showHelp) return;
+
+        const handleClick = (e) => {
+            if (helpRef.current && !helpRef.current.contains(e.target)) {
+                setShowHelp(false);
+            }
+        };
+        const handleKey = (e) => {
+            if (e.key === "Escape") setShowHelp(false);
+        };
+
+        document.addEventListener("mousedown", handleClick);
+        document.addEventListener("keydown", handleKey);
+        return () => {
+            document.removeEventListener("mousedown", handleClick);
+            document.removeEventListener("keydown", handleKey);
+        };
+    }, [showHelp]);
 
     const handleAdd = async (e) => {
         e.preventDefault();
@@ -148,7 +170,7 @@ export default function Dashboard({ user, onLogout }) {
                     <div className={theme.userControls}>
                         <span className={theme.username}>{user.email}</span>
 
-                        <div className="relative">
+                        <div className="relative" ref={helpRef}>
                             <button
                                 type="button"
                                 className={theme.helpButton}
