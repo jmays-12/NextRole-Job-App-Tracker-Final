@@ -54,7 +54,7 @@ def get_owned_application(app_id):
 
 def is_valid_date(value):
     try:
-        datetime.strptime(value, "%Y-%m-%d").date()
+        datetime.strptime(value, "%Y-%m-%d")  # noqa: DTZ007 - disable Ruff linter analyzing this line for not adding a timezone arg
         return True
     except (ValueError, TypeError):
         return False
