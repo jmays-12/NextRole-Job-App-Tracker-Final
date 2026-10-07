@@ -20,7 +20,11 @@ app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 if not app.config["SECRET_KEY"]:
     raise RuntimeError("SECRET_KEY environment variable is not set")
 
-CORS(app, origins=["http://localhost:5173"], supports_credentials=True)
+CORS(
+    app,
+    origins=[os.environ.get("FRONTEND_URL", "http://localhost:5173")],
+    supports_credentials=True,
+)
 bcrypt = Bcrypt(app)
 db.init_app(app)
 migrate = Migrate(app, db)
