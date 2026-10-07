@@ -1,9 +1,17 @@
 import { useEffect, useState, useRef } from "react";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+
 import { api } from "../utils/api";
 import { theme } from "../utils/theme";
 
 const STATUSES = ["applied", "interviewing", "offer", "rejected", "withdrawn"];
 
+const SORT_OPTIONS = {
+    added: "Recently added",
+    dateNewest: "Date applied (newest)",
+    dateOldest: "Date applied (oldest)",
+    company: "Company (A-Z)",
+};
 
 // Today's date as YYYY-MM-DD (the date picker and database need this format)
 const today = () => {
@@ -30,6 +38,7 @@ const normalizeUrl = (url) => {
 export default function Dashboard({ user, onLogout }) {
 
     const helpRef = useRef(null);
+    const [listRef] = useAutoAnimate({ duration: 150 });
 
     const [apps, setApps] = useState([]);
     const [company, setCompany] = useState("");
@@ -47,6 +56,8 @@ export default function Dashboard({ user, onLogout }) {
     const [showHelp, setShowHelp] = useState(false);
 
     const [statusFilter, setStatusFilter] = useState("all");
+    const [search, setSearch] = useState("");
+    const [sortBy, setSortBy] = useState("added");
 
     useEffect(() => {
         api.getApps().then(setApps).catch((err) => setError(err.message));
@@ -164,9 +175,22 @@ export default function Dashboard({ user, onLogout }) {
         }
     };
 
-    const visibleApps = apps.filter(
-        (a) => statusFilter === "all" || a.status === statusFilter
-    );
+    const query = search.trim().toLowerCase();
+    const visibleApps = apps.filter((a) => {
+        const matchesStatus = statusFilter === "all" || a.status === statusFilter;
+        const matchesSearch =
+            !query ||
+            a.company.toLowerCase().includes(query) ||
+            a.role.toLowerCase().includes(query);
+        return matchesStatus && matchesSearch;
+    });
+
+    visibleApps.sort((a, b) => {
+        if (sortBy === "dateNewest") return b.date_applied.localeCompare(a.date_applied) || b.id - a.id;
+        if (sortBy === "dateOldest") return a.date_applied.localeCompare(b.date_applied) || a.id - b.id;
+        if (sortBy === "company") return a.company.localeCompare(b.company, undefined, { sensitivity: "base" });
+        return b.id - a.id;
+    });
 
     return (
         <div className={theme.page}>
@@ -228,72 +252,95 @@ export default function Dashboard({ user, onLogout }) {
                     <input className={theme.input} type="date" value={dateApplied} onChange={(e) => setDateApplied(e.target.value)} />
                     <button className={theme.button} type="submit">Add application</button>
                 </form>
-
                 {apps.length > 0 && (
-                    <div className={theme.filterRow}>
-                        {["all", ...STATUSES].map((s) => (
-                            <button
-                                key={s}
-                                type="button"
-                                className={
-                                    statusFilter === s
-                                        ? s === "all" ? theme.chipOnAll : theme.chipOn[s]
-                                        : theme.chipOff
-                                }
-                                onClick={() => setStatusFilter(s)}
-                            >
-                                {s}
-                            </button>
-                        ))}
-                    </div>
+                    <>
+                        <div className={theme.searchRow}>
+                            <input
+                                className={theme.searchInput}
+                                placeholder="Search company or role"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                            <label className={theme.sortWrap}>
+                                Sort by:
+                                <select
+                                    className={theme.select}
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                >
+                                    {Object.entries(SORT_OPTIONS).map(([value, label]) => (
+                                        <option key={value} value={value}>{label}</option>
+                                    ))}
+                                </select>
+                            </label>
+                        </div>
+                        <div className={theme.filterRow}>
+                            {["all", ...STATUSES].map((s) => (
+                                <button
+                                    key={s}
+                                    type="button"
+                                    className={
+                                        statusFilter === s
+                                            ? s === "all" ? theme.chipOnAll : theme.chipOn[s]
+                                            : theme.chipOff
+                                    }
+                                    onClick={() => setStatusFilter(s)}
+                                >
+                                    {s}
+                                </button>
+                            ))}
+                        </div>
+                    </>
                 )}
 
                 {apps.length === 0 && <p className={theme.info}>No applications yet. Fill out the form above to add your first application to track!</p>}
                 {apps.length > 0 && visibleApps.length === 0 && (
                     <p className={theme.info}>No applications match your filters.</p>
                 )}
-                {visibleApps.map((app) =>
-                    editingId === app.id ? (
-                        <div className={theme.card} key={app.id}>
-                            {editError && <p className={theme.error}>{editError}</p>}
-                            <input className={theme.input} value={draft.company} onChange={(e) => setDraft({ ...draft, company: e.target.value })} />
-                            <input className={theme.input} value={draft.role} onChange={(e) => setDraft({ ...draft, role: e.target.value })} />
-                            <input className={theme.input} placeholder="Link" value={draft.link} onChange={(e) => setDraft({ ...draft, link: e.target.value })} />
-                            <input className={theme.input} type="date" value={draft.date_applied} onChange={(e) => setDraft({ ...draft, date_applied: e.target.value })} />
-                            <textarea className={theme.input} placeholder="Notes" value={draft.notes} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} />
-                            <div className={theme.row}>
-                                <button type="button" className={theme.button} onClick={() => saveEdit(app.id)}>Save</button>
-                                <button type="button" className={theme.button} onClick={cancelEdit}>Cancel</button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className={theme.card} key={app.id}>
-                            <p className={theme.companyName}><strong>{app.company}</strong></p>
-                            <span className={theme.role}>Position: {app.role}</span>
-                            <p className={theme.date}>Applied: {formatDate(app.date_applied)}</p>
-                            {app.link && <a className={theme.appLink} href={normalizeUrl(app.link)} target="_blank" rel="noreferrer">{app.link}</a>}
-                            {app.notes && <><span className={theme.notesTitle}>Notes:</span><p className={theme.notes}>{app.notes}</p></>}
-                            <div className={theme.statusRow}>
-                                {STATUSES.map((s) => (
-                                    <button
-                                        key={s}
-                                        type="button"
-                                        className={app.status === s ? theme.chipOn[s] : theme.chipOff}
-                                        onClick={() => app.status !== s && handleStatus(app.id, s)}
-                                    >
-                                        {s}
-                                    </button>
-                                ))}
-                            </div>
-                            <div className={theme.row}>
-                                <div className={theme.editButtons}>
-                                    <button type="button" className={theme.button} onClick={() => startEdit(app)}>Edit</button>
-                                    <button type="button" className={theme.buttonDanger} onClick={() => handleDelete(app.id)}>Delete</button>
+                <div ref={listRef}>
+                    {visibleApps.map((app) =>
+                        editingId === app.id ? (
+                            <div className={theme.card} key={app.id}>
+                                {editError && <p className={theme.error}>{editError}</p>}
+                                <input className={theme.input} value={draft.company} onChange={(e) => setDraft({ ...draft, company: e.target.value })} />
+                                <input className={theme.input} value={draft.role} onChange={(e) => setDraft({ ...draft, role: e.target.value })} />
+                                <input className={theme.input} placeholder="Link" value={draft.link} onChange={(e) => setDraft({ ...draft, link: e.target.value })} />
+                                <input className={theme.input} type="date" value={draft.date_applied} onChange={(e) => setDraft({ ...draft, date_applied: e.target.value })} />
+                                <textarea className={theme.input} placeholder="Notes" value={draft.notes} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} />
+                                <div className={theme.row}>
+                                    <button type="button" className={theme.button} onClick={() => saveEdit(app.id)}>Save</button>
+                                    <button type="button" className={theme.button} onClick={cancelEdit}>Cancel</button>
                                 </div>
                             </div>
-                        </div>
-                    )
-                )}
+                        ) : (
+                            <div className={theme.card} key={app.id}>
+                                <p className={theme.companyName}><strong>{app.company}</strong></p>
+                                <span className={theme.role}>Position: {app.role}</span>
+                                <p className={theme.date}>Applied: {formatDate(app.date_applied)}</p>
+                                {app.link && <a className={theme.appLink} href={normalizeUrl(app.link)} target="_blank" rel="noreferrer">{app.link}</a>}
+                                {app.notes && <><span className={theme.notesTitle}>Notes:</span><p className={theme.notes}>{app.notes}</p></>}
+                                <div className={theme.statusRow}>
+                                    {STATUSES.map((s) => (
+                                        <button
+                                            key={s}
+                                            type="button"
+                                            className={app.status === s ? theme.chipOn[s] : theme.chipOff}
+                                            onClick={() => app.status !== s && handleStatus(app.id, s)}
+                                        >
+                                            {s}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className={theme.row}>
+                                    <div className={theme.editButtons}>
+                                        <button type="button" className={theme.button} onClick={() => startEdit(app)}>Edit</button>
+                                        <button type="button" className={theme.buttonDanger} onClick={() => handleDelete(app.id)}>Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                        )
+                    )}
+                </div>
             </div>
         </div>
     );

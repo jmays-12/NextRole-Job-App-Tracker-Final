@@ -46,6 +46,9 @@ theme.date = `text-sm text-gray-600 m-1`
 
 theme.input = `border rounded px-2 py-1 w-full mb-2 bg-white`
 
+theme.searchRow = `flex items-center gap-3 mb-2`
+theme.searchInput = `border rounded px-2 py-1 flex-1 bg-white`
+
 
 theme.switchText = `mt-3`
 theme.error = `text-red-600 mb-2`
@@ -53,3 +56,6 @@ theme.row = `flex gap-2 items-center`
 theme.link = `underline cursor-pointer hover:text-gray-500`
 theme.info = `text-center mt-10 text-gray-500`
 theme.loading = `text-gray-500`
+
+theme.sortWrap = `ml-auto flex items-center gap-2 text-sm text-gray-600`
+theme.select = `border rounded px-2 py-1 bg-white text-sm`
