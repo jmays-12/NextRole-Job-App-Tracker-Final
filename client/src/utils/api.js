@@ -27,4 +27,5 @@ export const api = {
 	updateApp: (id, body) => request(`/applications/${id}`, "PATCH", body),
 	updateStatus: (id, status) => request(`/applications/${id}`, "PATCH", { status }),
 	deleteApp: (id) => request(`/applications/${id}`, "DELETE"),
+    touchApp: (id) => request(`/applications/${id}`, "PATCH", { touch: true }),
 };
