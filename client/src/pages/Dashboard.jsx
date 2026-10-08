@@ -4,7 +4,7 @@ import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { api } from "../utils/api";
 import { theme } from "../utils/theme";
 
-const STATUSES = ["applied", "interviewing", "offer", "rejected", "withdrawn"];
+const STATUSES = ["applied", "interviewing", "rejected", "withdrawn", "offer",];
 
 const SORT_OPTIONS = {
     added: "Recently added",
@@ -38,7 +38,10 @@ const normalizeUrl = (url) => {
 export default function Dashboard({ user, onLogout }) {
 
     const helpRef = useRef(null);
-    const [listRef] = useAutoAnimate({ duration: 150 });
+
+    const [listRef] = useAutoAnimate({ duration: 250 });
+    const [pageRef] = useAutoAnimate({ duration: 250 });
+    const [containerRef] = useAutoAnimate({ duration: 250 });
 
     const [apps, setApps] = useState([]);
     const [company, setCompany] = useState("");
@@ -124,8 +127,13 @@ export default function Dashboard({ user, onLogout }) {
     };
 
     const handleLogout = async () => {
-        await api.logout();
-        onLogout();
+        try {
+            setError("");
+            await api.logout();
+            onLogout();
+        } catch (err) {
+            setError(err.message);
+        }
     };
 
     const hasUnsavedChanges = () => {
@@ -193,13 +201,20 @@ export default function Dashboard({ user, onLogout }) {
     });
 
     return (
-        <div className={theme.page}>
-            <div className={theme.container}>
+        <div className={theme.page} ref={pageRef}>
+            <div className={theme.container} ref={containerRef}>
                 <div className={theme.header}>
                     <h1 className={theme.title}>NextRole</h1>
                     <p className={theme.tagline}>Job Application Tracker</p>
                     <div className={theme.userControls}>
                         <span className={theme.username}>{user.email}</span>
+
+                        <button
+                            className={theme.logoutButton}
+                            onClick={handleLogout}
+                        >
+                            Log out
+                        </button>
 
                         <div className="relative" ref={helpRef}>
                             <button
@@ -224,28 +239,23 @@ export default function Dashboard({ user, onLogout }) {
 
                                     <p className={theme.helpPopupTitle}><strong><u>How to use NextRole</u></strong></p>
                                     <p>Add a job application using the form below.</p>
-                                    <p>Use the <i>Status buttons</i> to track where you are in the hiring process.</p>
-                                    <p>Click <i>Edit</i> to add notes or update application details.</p>
+                                    <p>Use the <i>Status</i> buttons to track where you are in the hiring process.</p>
+                                    <p>Click <i>Edit</i> to add notes or update application.</p>
                                     <p>Click <i>Delete</i> to remove an application.</p>
+                                    <p><i>Sort</i>, <i>search</i> and <i>filter</i> buttons are underneath new application form.</p>
                                     <p>Job links will open in a new tab.</p>
-                                    <p>Good luck on your next career!</p>
                                 </div>
                             )}
                         </div>
 
-                        <button
-                            className={theme.logoutButton}
-                            onClick={handleLogout}
-                        >
-                            Log out
-                        </button>
+
                     </div>
                 </div>
 
 
                 {error && <p className={theme.error}>{error}</p>}
 
-                <form className={theme.card} onSubmit={handleAdd}>
+                <form className={theme.appFormCard} onSubmit={handleAdd}>
                     <input className={theme.input} placeholder="Company" value={company} onChange={(e) => setCompany(e.target.value)} />
                     <input className={theme.input} placeholder="Role" value={role} onChange={(e) => setRole(e.target.value)} />
                     <input className={theme.input} placeholder="Link (optional)" value={link} onChange={(e) => setLink(e.target.value)} />
@@ -264,7 +274,7 @@ export default function Dashboard({ user, onLogout }) {
                             <label className={theme.sortWrap}>
                                 Sort by:
                                 <select
-                                    className={theme.select}
+                                    className={theme.sortBy}
                                     value={sortBy}
                                     onChange={(e) => setSortBy(e.target.value)}
                                 >
@@ -317,7 +327,8 @@ export default function Dashboard({ user, onLogout }) {
                                 <p className={theme.companyName}><strong>{app.company}</strong></p>
                                 <span className={theme.role}>Position: {app.role}</span>
                                 <p className={theme.date}>Applied: {formatDate(app.date_applied)}</p>
-                                {app.link && <a className={theme.appLink} href={normalizeUrl(app.link)} target="_blank" rel="noreferrer">{app.link}</a>}
+                                {app.link && <><p className={theme.companyWebsite}>Company website: </p>
+                                    <a className={theme.appLink} href={normalizeUrl(app.link)} target="_blank" rel="noreferrer">{app.link}</a></>}
                                 {app.notes && <><span className={theme.notesTitle}>Notes:</span><p className={theme.notes}>{app.notes}</p></>}
                                 <div className={theme.statusRow}>
                                     {STATUSES.map((s) => (

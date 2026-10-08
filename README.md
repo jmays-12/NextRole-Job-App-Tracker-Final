@@ -52,7 +52,7 @@ cd server
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env             # then edit .env and set SECRET_KEY
+cp ../.env.example ../.env             # then edit .env and set SECRET_KEY
 flask --app app db upgrade       # creates the database tables
 python app.py
 ```
@@ -93,7 +93,6 @@ client/src/
 
 - Styling is not finalized. All classes live in `client/src/utils/theme.js`, so restyling happens in one place.
 - No password rules or email format validation beyond "required".
-- No filtering or sorting of applications yet.
 - No React Router yet. The app switches between login and dashboard with conditional rendering.
 - Add/edit forms are inline on the dashboard instead of separate pages.
 - Job links are not validated (a missing `https://` is added automatically when the link is opened).
