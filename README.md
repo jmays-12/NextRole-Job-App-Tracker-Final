@@ -52,9 +52,9 @@ cd server
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-cp ../.env.example ../.env             # then edit .env and set SECRET_KEY
+cp ../.env.example ../.env       # replace SECRET_KEY with a random value
 flask --app app db upgrade       # creates the database tables
-python app.py
+flask --app app run --debug --port 5001
 ```
 
 The server runs on http://localhost:5001.
@@ -67,17 +67,46 @@ npm install
 npm run dev
 ```
 
-Open the app at http://localhost:5173 (use `localhost`, not `127.0.0.1`, so the CORS origin matches and the session cookie is sent).
+Vite reads `VITE_API_URL` from the same repository-root `.env` as the backend. Only variables prefixed with `VITE_` are exposed to frontend code. Open the app at http://localhost:5173 (use `localhost`, not `127.0.0.1`, so the CORS origin matches and the session cookie is sent).
+
+## Production Deployment
+
+Deploy the frontend and Flask API as separate services, and use a managed PostgreSQL database for production. SQLite is the local default; on most hosting platforms its filesystem is temporary, so application data can disappear on restart or redeploy.
+
+Configure these backend environment variables in your hosting provider:
+
+- `SECRET_KEY`: your randomly generated secret key for production
+- `DATABASE_URL`: the managed PostgreSQL connection URL. The app accepts both `postgres://` and `postgresql://` URL schemes.
+- `FRONTEND_URL`: the frontend's exact origin, for example `https://jobs.example.com` (no trailing slash).
+- `SESSION_COOKIE_SECURE=true`: required when serving over HTTPS.
+- `SESSION_COOKIE_SAMESITE=Lax` when frontend and API are same-site. For cross-site deployments use `None`; browsers require `Secure=true` with `SameSite=None`.
+
+Set `VITE_API_URL` in the shared root environment (or the frontend hosting/build environment) to the API base URL, including `/api`, for example `https://api.example.com/api`. Vite reads the root `.env`; only `VITE_`-prefixed variables are bundled into browser code. CORS only permits the origin configured by `FRONTEND_URL`.
+
+Install dependencies and apply database migrations as a pre-deploy/release step, from the `server/` directory:
+
+```bash
+pip install -r requirements.txt
+flask --app app db upgrade
+```
+
+Configure the backend service's start command from the `server/` directory as:
+
+```bash
+gunicorn --bind "0.0.0.0:${PORT:-8000}" --workers 2 app:app
+```
+
+Gunicorn is the production server. Do not use Flask's `--debug` mode or development server in production. The `flask --app app run --debug --port 5001` command above is for local development only.
 
 ## Project Structure
 
 ```
+.env.example             # repository-root environment template
 server/
 ├── app.py              # Flask routes (auth + applications)
 ├── models.py           # SQLAlchemy models (User, Application)
 ├── migrations/         # Flask-Migrate database migrations
-├── requirements.txt
-└── .env.example        # copy to .env and set SECRET_KEY
+└── requirements.txt
 client/src/
 ├── main.jsx
 ├── App.jsx             # Shows Auth or Dashboard based on login state

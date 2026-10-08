@@ -17,9 +17,17 @@ MAX_NOTES_LENGTH = 2000
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///nextrole.db"
+database_url = os.environ.get("DATABASE_URL", "sqlite:///nextrole.db")
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SESSION_COOKIE_HTTPONLY"] = True  # JS can't read the cookie
-app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SAMESITE"] = os.environ.get(
+    "SESSION_COOKIE_SAMESITE", "Lax"
+)
+app.config["SESSION_COOKIE_SECURE"] = os.environ.get(
+    "SESSION_COOKIE_SECURE", "false"
+).lower() in {"true", "1", "yes"}
 
 if not app.config["SECRET_KEY"]:
     raise RuntimeError("SECRET_KEY environment variable is not set")
@@ -209,4 +217,4 @@ def delete_application(app_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    app.run(port=5001)
