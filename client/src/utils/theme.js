@@ -2,7 +2,7 @@ export const theme = {};
 // initialize empty theme object first so we can inherit from other components
 theme.page = `flex flex-col items-center justify-center min-h-screen relative overflow-hidden`
 
-theme.container = `mb-30 mt-10 rounded-lg max-w-3xl p-4 shadow-lg bg-gray-50`
+theme.container = `mb-30 mt-10 rounded-lg max-w-4xl p-4 shadow-lg bg-gray-50`
 theme.header = `flex items-center gap-3 mb-1`
 theme.title = `text-3xl font-bold mb-3 tracking-tight`
 theme.tagline = `pb-2 mr-auto tracking-wide`
@@ -21,7 +21,7 @@ theme.helpClose = `absolute top-0.5 right-2 text-gray-500 hover:text-gray-800 cu
 theme.button = `border rounded-lg px-2 py-0.5 m-1 text-gray-700 hover:bg-gray-100`
 theme.buttonDanger = `${theme.button} text-red-600 hover:bg-red-100`
 theme.logoutButton = `${theme.button} tracking-tight`
-theme.editButtons = `ml-auto flex gap-3`
+theme.editButtons = `ml-auto flex gap-0 mt-5 `
 
 theme.statusRow = `flex flex-wrap gap-2 mt-3`
 theme.chipBase = `border rounded-full px-3 py-1 text-sm capitalize cursor-pointer`
@@ -32,10 +32,12 @@ theme.chipOn = {
     offer: `${theme.chipBase} bg-green-100 text-green-800 border-green-300`,
     rejected: `${theme.chipBase} bg-red-100 text-red-800 border-red-300`,
     withdrawn: `${theme.chipBase} bg-gray-200 text-gray-700 border-gray-400`,
+    "no response": `${theme.chipBase} bg-slate-100 text-slate-700 border-slate-300`,
+    "offer declined": `${theme.chipBase} bg-purple-100 text-purple-800 border-purple-300`,
 }
 theme.chipOnAll = `${theme.chipBase} bg-gray-800 text-white border-gray-800`
 theme.filterRow = `flex flex-wrap gap-2 mb-3`
-
+theme.toggleClosed = `text-sm text-gray-500 underline cursor-pointer hover:text-gray-800 mb-3 block`
 
 theme.companyName = `capitalize underline text-2xl m-1 text-gray-900`
 theme.role = `text-gray-600 text-sm m-1 block`
@@ -44,7 +46,7 @@ theme.companyWebsite = `${theme.date}`
 theme.appLink = `underline text-blue-500 text-sm block m-1`
 
 theme.notes = `border rounded border-gray-500 p-2 bg-[repeating-linear-gradient(to_bottom,#fffbeb_0px,#fffbeb_27px,#fde68a_28px)] text-sm text-gray-900 m-1 whitespace-pre-line leading-4`
-theme.notesTitle = `text-base block m-1 text-gray-600`
+theme.notesTitle = `text-sm block mt-3 m-1 text-gray-600 italic`
 
 
 

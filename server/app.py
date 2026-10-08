@@ -22,9 +22,7 @@ if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SESSION_COOKIE_HTTPONLY"] = True  # JS can't read the cookie
-app.config["SESSION_COOKIE_SAMESITE"] = os.environ.get(
-    "SESSION_COOKIE_SAMESITE", "Lax"
-)
+app.config["SESSION_COOKIE_SAMESITE"] = os.environ.get("SESSION_COOKIE_SAMESITE", "Lax")
 app.config["SESSION_COOKIE_SECURE"] = os.environ.get(
     "SESSION_COOKIE_SECURE", "false"
 ).lower() in {"true", "1", "yes"}
@@ -41,7 +39,15 @@ bcrypt = Bcrypt(app)
 db.init_app(app)
 migrate = Migrate(app, db)
 
-VALID_STATUSES = ["applied", "interviewing", "offer", "rejected", "withdrawn"]
+VALID_STATUSES = [
+    "applied",
+    "interviewing",
+    "rejected",
+    "offer",
+    "withdrawn",
+    "no response",
+    "offer declined",
+]
 
 
 # reusable function wrapper for validating session

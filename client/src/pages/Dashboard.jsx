@@ -4,10 +4,10 @@ import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { api } from "../utils/api";
 import { theme } from "../utils/theme";
 
-const STATUSES = ["applied", "interviewing", "rejected", "withdrawn", "offer",];
+const STATUSES = ["applied", "interviewing", "offer", "rejected", "withdrawn", "no response", "offer declined"];
+const CLOSED_STATUSES = ["rejected", "withdrawn", "no response", "offer declined"];
 
 const SORT_OPTIONS = {
-    added: "Recently added",
     dateNewest: "Date applied (newest)",
     dateOldest: "Date applied (oldest)",
     company: "Company (A-Z)",
@@ -61,6 +61,8 @@ export default function Dashboard({ user, onLogout }) {
     const [statusFilter, setStatusFilter] = useState("all");
     const [search, setSearch] = useState("");
     const [sortBy, setSortBy] = useState("added");
+
+    const [showClosed, setShowClosed] = useState(false);
 
     useEffect(() => {
         api.getApps().then(setApps).catch((err) => setError(err.message));
@@ -184,12 +186,16 @@ export default function Dashboard({ user, onLogout }) {
     };
 
     const query = search.trim().toLowerCase();
+    const closedCount = apps.filter((a) => CLOSED_STATUSES.includes(a.status)).length;
     const visibleApps = apps.filter((a) => {
-        const matchesStatus = statusFilter === "all" || a.status === statusFilter;
+        const isClosed = CLOSED_STATUSES.includes(a.status);
+        const matchesStatus =
+            statusFilter === "all" ? showClosed || !isClosed : a.status === statusFilter;
         const matchesSearch =
             !query ||
             a.company.toLowerCase().includes(query) ||
             a.role.toLowerCase().includes(query);
+
         return matchesStatus && matchesSearch;
     });
 
@@ -300,6 +306,11 @@ export default function Dashboard({ user, onLogout }) {
                                 </button>
                             ))}
                         </div>
+                        {statusFilter === "all" && closedCount > 0 && (
+                            <button type="button" className={theme.toggleClosed} onClick={() => setShowClosed(!showClosed)}>
+                                {showClosed ? "Hide closed" : `Show closed (${closedCount})`}
+                            </button>
+                        )}
                     </>
                 )}
 
@@ -329,7 +340,7 @@ export default function Dashboard({ user, onLogout }) {
                                 <p className={theme.date}>Applied: {formatDate(app.date_applied)}</p>
                                 {app.link && <><p className={theme.companyWebsite}>Company website: </p>
                                     <a className={theme.appLink} href={normalizeUrl(app.link)} target="_blank" rel="noreferrer">{app.link}</a></>}
-                                {app.notes && <><span className={theme.notesTitle}>Notes:</span><p className={theme.notes}>{app.notes}</p></>}
+                                {app.notes && <><span className={theme.notesTitle}>Notes</span><p className={theme.notes}>{app.notes}</p></>}
                                 <div className={theme.statusRow}>
                                     {STATUSES.map((s) => (
                                         <button
