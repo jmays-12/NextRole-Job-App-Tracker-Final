@@ -33,6 +33,7 @@ class Application(db.Model):
         default=lambda: datetime.now(timezone.utc).date().isoformat(),
     )
     notes = db.Column(db.String, nullable=False, default="")
+    last_activity_at = db.Column(db.String, nullable=True)
 
     def to_dict(self):
         return {

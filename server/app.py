@@ -173,6 +173,7 @@ def create_application():
         role=role,
         link=link,
         date_applied=date_applied,
+        last_activity_at=datetime.now(timezone.utc).date().isoformat(),
     )
     db.session.add(application)
     db.session.commit()
@@ -199,6 +200,9 @@ def update_application(app_id):
         return jsonify({"error": error}), 400
     if status not in VALID_STATUSES:
         return jsonify({"error": "Invalid status"}), 400
+
+    if status != application.status or data.get("touch"):
+        application.last_activity_at = datetime.now(timezone.utc).date().isoformat()
 
     application.company = company
     application.role = role
