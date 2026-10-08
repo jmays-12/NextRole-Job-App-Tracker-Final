@@ -48,7 +48,7 @@ theme.appLink = `underline text-blue-500 text-sm block m-1`
 theme.notes = `border rounded border-gray-500 p-2 bg-[repeating-linear-gradient(to_bottom,#fffbeb_0px,#fffbeb_27px,#fde68a_28px)] text-sm text-gray-900 m-1 whitespace-pre-line leading-4`
 theme.notesTitle = `text-sm block mt-3 m-1 text-gray-600 italic`
 
-
+theme.reminder = `flex flex-wrap items-center gap-2 mt-3 p-2 rounded bg-amber-50 border border-amber-300 text-sm text-amber-900`
 
 theme.input = `border rounded px-2 py-1 w-full mb-2 bg-white`
 

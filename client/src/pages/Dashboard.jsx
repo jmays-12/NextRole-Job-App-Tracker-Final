@@ -27,13 +27,23 @@ const formatDate = (iso) => {
     const [year, month, day] = iso.split("-");
     return `${month}/${day}/${year}`;
 };
-
+// Turns a URL into a clickable link, adding https:// if needed
 const normalizeUrl = (url) => {
     if (!url) return "";
     return url.startsWith("http://") || url.startsWith("https://")
         ? url
         : `https://${url}`;
 };
+// Returns the number of days since the last activity on an application (or since it was applied if no activity yet)
+const STALE_DAYS = 7;
+
+const idleDays = (app) => {
+    const [y, m, d] = (app.last_activity_at || app.date_applied).split("-").map(Number);
+    return Math.floor((new Date() - new Date(y, m - 1, d)) / 86400000);
+};
+
+const isStale = (app) =>
+    ["applied", "interviewing"].includes(app.status) && idleDays(app) >= STALE_DAYS;
 
 export default function Dashboard({ user, onLogout }) {
 
@@ -102,7 +112,7 @@ export default function Dashboard({ user, onLogout }) {
             setError(err.message);
         }
     };
-
+    // Update the status of an application (applied, interviewing, offer, rejected, withdrawn, no response, offer declined)
     const handleStatus = async (id, status) => {
         try {
             setError("");
@@ -110,6 +120,16 @@ export default function Dashboard({ user, onLogout }) {
             setApps((currentApps) =>
                 currentApps.map((a) => (a.id === id ? updated : a))
             );
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+    // Mark an application as "touched" to update its last_activity_at timestamp
+    const handleDismiss = async (id) => {
+        try {
+            setError("");
+            const updated = await api.touchApp(id);
+            setApps((currentApps) => currentApps.map((a) => (a.id === id ? updated : a)));
         } catch (err) {
             setError(err.message);
         }
@@ -353,6 +373,13 @@ export default function Dashboard({ user, onLogout }) {
                                         </button>
                                     ))}
                                 </div>
+                                {isStale(app) && (
+                                    <div className={theme.reminder}>
+                                        <span>No update in {idleDays(app)} days.</span>
+                                        <button type="button" className={theme.button} onClick={() => handleStatus(app.id, "no response")}>Mark no response</button>
+                                        <button type="button" className={theme.button} onClick={() => handleDismiss(app.id)}>Still waiting</button>
+                                    </div>
+                                )}
                                 <div className={theme.row}>
                                     <div className={theme.editButtons}>
                                         <button type="button" className={theme.button} onClick={() => startEdit(app)}>Edit</button>
