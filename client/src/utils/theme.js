@@ -1,8 +1,8 @@
 export const theme = {};
 // initialize empty theme object first so we can inherit from other components
-theme.page = `flex flex-col items-center justify-center min-h-screen bg-slate-50 relative overflow-hidden`
+theme.page = `flex flex-col items-center justify-center min-h-screen relative overflow-hidden`
 
-theme.container = `mb-30 mt-10 rounded-lg max-w-4xl p-4 shadow-lg bg-gray-100`
+theme.container = `mb-30 mt-10 rounded-lg max-w-4xl p-4 shadow-lg bg-gray-50`
 theme.header = `flex items-center gap-3 mb-1`
 theme.title = `text-3xl font-bold mb-3 tracking-tight`
 theme.tagline = `pb-2 mr-auto tracking-wide`
