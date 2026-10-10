@@ -8,6 +8,7 @@ const STATUSES = ["applied", "interviewing", "offer", "rejected", "withdrawn", "
 const CLOSED_STATUSES = ["rejected", "withdrawn", "no response", "offer declined"];
 
 const SORT_OPTIONS = {
+    added: "Recently added",
     dateNewest: "Date applied (newest)",
     dateOldest: "Date applied (oldest)",
     company: "Company (A-Z)",
@@ -54,6 +55,9 @@ export default function Dashboard({ user, onLogout }) {
     const [containerRef] = useAutoAnimate({ duration: 250 });
 
     const [apps, setApps] = useState([]);
+    const [appsLoading, setAppsLoading] = useState(true);
+    const [appsLoadError, setAppsLoadError] = useState("");
+    const [loadAttempt, setLoadAttempt] = useState(0);
     const [company, setCompany] = useState("");
     const [role, setRole] = useState("");
 
@@ -75,8 +79,23 @@ export default function Dashboard({ user, onLogout }) {
     const [showClosed, setShowClosed] = useState(false);
 
     useEffect(() => {
-        api.getApps().then(setApps).catch((err) => setError(err.message));
-    }, []);
+        let active = true;
+        setAppsLoading(true);
+        setAppsLoadError("");
+        api.getApps()
+            .then((data) => {
+                if (active) setApps(data);
+            })
+            .catch((err) => {
+                if (active) setAppsLoadError(err.message);
+            })
+            .finally(() => {
+                if (active) setAppsLoading(false);
+            });
+        return () => {
+            active = false;
+        };
+    }, [loadAttempt]);
 
     useEffect(() => {
         if (!showHelp) return;
@@ -280,6 +299,18 @@ export default function Dashboard({ user, onLogout }) {
 
 
                 {error && <p className={theme.error}>{error}</p>}
+                {appsLoadError && (
+                    <div className={theme.error}>
+                        <p>Could not load your applications: {appsLoadError}</p>
+                        <button
+                            type="button"
+                            className={theme.button}
+                            onClick={() => setLoadAttempt((attempt) => attempt + 1)}
+                        >
+                            Try again
+                        </button>
+                    </div>
+                )}
 
                 <form className={theme.appFormCard} onSubmit={handleAdd}>
                     <input className={theme.input} placeholder="Company" value={company} onChange={(e) => setCompany(e.target.value)} />
@@ -334,8 +365,11 @@ export default function Dashboard({ user, onLogout }) {
                     </>
                 )}
 
-                {apps.length === 0 && <p className={theme.info}>No applications yet. Fill out the form above to add your first application to track!</p>}
-                {apps.length > 0 && visibleApps.length === 0 && (
+                {appsLoading && <p className={theme.info}>Loading applications...</p>}
+                {!appsLoading && !appsLoadError && apps.length === 0 && (
+                    <p className={theme.info}>No applications yet. Fill out the form above to add your first application to track!</p>
+                )}
+                {!appsLoading && !appsLoadError && apps.length > 0 && visibleApps.length === 0 && (
                     <p className={theme.info}>No applications match your filters.</p>
                 )}
                 <div ref={listRef}>

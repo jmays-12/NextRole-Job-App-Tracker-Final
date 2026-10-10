@@ -16,15 +16,17 @@ A full-stack job application tracker. Sign up, log in, and keep every applicatio
 - Sign up, log in, and log out
 - Stay logged in after a page refresh
 - Add, view, edit, and delete job applications
-- Track company, role, link, date applied, status, and notes
-- Move an application through stages with one click: applied, interviewing, offer, rejected, withdrawn
+- Track company, role, link, date applied, status, notes, and last activity date
+- Update application status with one click: applied, interviewing, offer, rejected, withdrawn, no response, or offer declined
+- See a stale-application reminder when an application is still active and has had no activity for seven days; mark no response or reset the activity date
+- Search by company or role, filter by status, sort by applied date or company, and hide closed applications
 - Delete confirmation and an in-app help popup
 - Each user only sees and edits their own applications
 
 ## Data Models
 
 - **User**: id, email, password_hash
-- **Application**: id, user_id, company, role, status, link, date_applied, notes
+- **Application**: id, user_id, company, role, status, link, date_applied, notes, last_activity_at
 
 One user has many applications.
 
@@ -120,19 +122,18 @@ client/src/
 
 ## Known Issues and Placeholders
 
-- Styling is not finalized. All classes live in `client/src/utils/theme.js`, so restyling happens in one place.
-- No password rules or email format validation beyond "required".
+- Password validation is limited; there are no password-strength rules, password reset flow, or email verification.
 - No React Router yet. The app switches between login and dashboard with conditional rendering.
 - Add/edit forms are inline on the dashboard instead of separate pages.
-- Job links are not validated (a missing `https://` is added automatically when the link is opened).
-- A failed API call shows a plain error message, and there are no loading states beyond the initial page load.
-- Cookie settings are for local development only and will need changes for deployment (separate domains need `SameSite=None; Secure`).
-- Not deployed. Runs locally only.
+- Job links are not validated; a missing `https://` is added when opening a link.
+- Reminders are in-app only. The seven-day interval is fixed, and activity is tracked by date rather than time.
+- API errors are shown as plain text; there is no centralized notification system.
+- Production deployment requires a persistent database and correctly configured session cookies, CORS origin, and frontend API URL.
 
-## Planned for Final Version
+## Possible Future Improvements
 
-- Status filtering
-- Form validation
-- Error and loading states
-- Real styling
-- Deployment, if time allows
+- Configurable follow-up reminders and a dated activity history
+- Password reset and email verification
+- CSV export and account/data deletion
+- More job details such as location, source, salary, and contact information
+- Automated backend tests for authentication, ownership checks, validation, and application CRUD

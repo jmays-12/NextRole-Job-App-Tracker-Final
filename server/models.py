@@ -44,5 +44,6 @@ class Application(db.Model):
             "status": self.status,
             "link": self.link,
             "date_applied": self.date_applied,
+            "last_activity_at": self.last_activity_at,
             "notes": self.notes,
         }

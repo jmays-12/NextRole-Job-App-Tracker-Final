@@ -21,10 +21,10 @@ theme.helpClose = `absolute top-0.5 right-2 text-gray-500 hover:text-gray-800 cu
 theme.button = `border rounded-lg px-2 py-0.5 m-1 text-gray-700 hover:bg-gray-100`
 theme.buttonDanger = `${theme.button} text-red-600 hover:bg-red-100`
 theme.logoutButton = `${theme.button} tracking-tight`
-theme.editButtons = `ml-auto flex gap-0 mt-5 `
+theme.editButtons = `ml-auto flex gap-0 mt-5 tracking-tight`
 
 theme.statusRow = `flex flex-wrap gap-2 mt-3`
-theme.chipBase = `border rounded-full px-3 py-1 text-sm capitalize cursor-pointer`
+theme.chipBase = `border rounded-full px-2 py-1 text-xs capitalize cursor-pointer tracking-wide`
 theme.chipOff = `${theme.chipBase} text-gray-500 hover:bg-gray-100`
 theme.chipOn = {
     applied: `${theme.chipBase} bg-blue-100 text-blue-800 border-blue-300`,
@@ -39,7 +39,7 @@ theme.chipOnAll = `${theme.chipBase} bg-gray-800 text-white border-gray-800`
 theme.filterRow = `flex flex-wrap gap-2 mb-3`
 theme.toggleClosed = `text-sm text-gray-500 underline cursor-pointer hover:text-gray-800 mb-3 block`
 
-theme.companyName = `capitalize underline text-2xl m-1 text-gray-900`
+theme.companyName = `capitalize underline text-2xl m-1 text-gray-900 tracking-tight`
 theme.role = `text-gray-600 text-sm m-1 block`
 theme.date = `text-sm text-gray-600 m-1`
 theme.companyWebsite = `${theme.date}`
