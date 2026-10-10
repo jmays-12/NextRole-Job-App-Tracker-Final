@@ -1,8 +1,8 @@
 export const theme = {};
 // initialize empty theme object first so we can inherit from other components
-theme.page = `flex flex-col items-center justify-center min-h-screen relative overflow-hidden`
+theme.page = `flex flex-col items-center justify-center min-h-screen bg-slate-50 relative overflow-hidden`
 
-theme.container = `mb-30 mt-10 rounded-lg max-w-4xl p-4 shadow-lg bg-gray-50`
+theme.container = `mb-30 mt-10 rounded-lg max-w-4xl p-4 shadow-lg bg-gray-100`
 theme.header = `flex items-center gap-3 mb-1`
 theme.title = `text-3xl font-bold mb-3 tracking-tight`
 theme.tagline = `pb-2 mr-auto tracking-wide`
@@ -13,7 +13,7 @@ theme.appFormCard = `px-3 py-6 mb-3`
 theme.card = `border rounded p-3 mb-3 shadow-sm border-gray-500`
 
 theme.helpButton = `border rounded-full w-6 h-6 flex items-center justify-center cursor-help mt-2`
-theme.helpPopup = `text-center absolute left-40 top-2 z-50 w-90 rounded border bg-white p-2 shadow-lg text-sm text-gray-600 space-y-1`
+theme.helpPopup = `text-center absolute left-20 top-2 z-50 w-90 rounded border bg-white p-2 shadow-lg text-sm text-gray-600 space-y-1`
 theme.helpPopupTitle = `text-base`
 theme.helpClose = `absolute top-0.5 right-2 text-gray-500 hover:text-gray-800 cursor-pointer text-sm`
 
