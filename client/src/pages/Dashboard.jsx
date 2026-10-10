@@ -8,7 +8,6 @@ const STATUSES = ["applied", "interviewing", "offer", "rejected", "withdrawn", "
 const CLOSED_STATUSES = ["rejected", "withdrawn", "no response", "offer declined"];
 
 const SORT_OPTIONS = {
-    added: "Recently added",
     dateNewest: "Date applied (newest)",
     dateOldest: "Date applied (oldest)",
     company: "Company (A-Z)",
@@ -74,7 +73,7 @@ export default function Dashboard({ user, onLogout }) {
 
     const [statusFilter, setStatusFilter] = useState("all");
     const [search, setSearch] = useState("");
-    const [sortBy, setSortBy] = useState("added");
+    const [sortBy, setSortBy] = useState("dateNewest");
 
     const [showClosed, setShowClosed] = useState(false);
 
