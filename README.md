@@ -61,6 +61,30 @@ flask --app app run --debug --port 5001
 
 The server runs on http://localhost:5001.
 
+If you use Pipenv, install the locked dependencies from `server/` and run Flask commands through Pipenv:
+
+```bash
+cd server
+pipenv install
+cp ../.env.example ../.env       # replace SECRET_KEY with a random value
+pipenv run flask --app app db upgrade
+pipenv run flask --app app run --debug --port 5001
+```
+
+### Optional: Seed sample applications
+
+To create or reset the isolated seed database, run this from the `server/` directory:
+
+```bash
+python seed.py
+```
+
+This recreates `server/instance/nextrole-seed.db` with a demo account and 15 fictional applications. Demo login: `test@test.com` / `test`. The sample job links use the reserved `example.com` domain.
+
+To run the app against this data, temporarily set `DATABASE_URL=sqlite:///nextrole-seed.db` in the repository-root `.env` and restart the backend. Restore your normal `DATABASE_URL` after the demo.
+
+**Warning:** Each run deletes and recreates only `nextrole-seed.db`. It does not use the database configured by `DATABASE_URL` and does not modify your development or production database.
+
 ### 2. Frontend
 
 ```bash

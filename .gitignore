@@ -41,7 +41,3 @@ lerna-debug.log*
 
 # script to start frontend+backend
 start.sh
-
-# test script
-test.sh
-test.txt
